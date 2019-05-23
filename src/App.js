@@ -1,5 +1,4 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { Component } from 'react';
 import './App.css';
 
 const list = [
@@ -19,32 +18,41 @@ const list = [
     points: 5,
     objectID: 1,
   },
+  {
+    title: 'Otro',
+    url: 'https://redux.js.org/',
+    author: 'Pedro infante, Antonio aguilar',
+    num_comments: 4,
+    points: 5,
+    objectID: 2,
+  },
 ];
 
-function App() {
-  const helloWorld = 'Welcome to the Road to learn React';
-  let name = "Dago Alexander";
-  let user = {
-    name: "Eliana",
-    lastname: "Ramírez"
+class App extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      list: list,
+    };
   }
-  return (
-    <div className="App">
-      <h2>{helloWorld}</h2>
-      <h3>You must improve this app along the course. Yes, you, {name}</h3>
-      <h3>We know who is your mother. We don't want your mother, {user.name} {user.lastname}, has an accident.</h3>
-      {list.map(item => {
-        return (
+
+  render() {
+    return (
+      <div className="App">
+        {this.state.list.map(item =>
           <div key={item.objectID}>
-            <span> <a href={item.url}>{item.title}</a> </span>
+            <span>
+              <a href={item.url}>{item.title}</a>
+            </span>
             <span>{item.author}</span>
             <span>{item.num_comments}</span>
             <span>{item.points}</span>
           </div>
-        );
-      })}
-    </div>
-  );
+        )}
+      </div>
+    );
+  }
 }
 
 export default App;
