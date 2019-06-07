@@ -19,7 +19,8 @@ class App extends Component {
       results: null,
       searchKey: '',
       searchTerm: DEFAULT_QUERY,
-      error: null
+      error: null,
+      isLoading: false
     };
 
     this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this);
@@ -51,12 +52,14 @@ class App extends Component {
       results: {
         ...results,
         [searchKey]: { hits: updatedHits, page }
-      }
+      },
+      isLoading: false
     });
   }
 
   fetchSearchTopStories(searchTerm, page = 0) {
-    axios(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)      
+    this.setState({ isLoading: true });
+    axios(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
       .then(result => this.setSearchTopStories(result.data))
       .catch(error => this.setState({ error }));
   }
@@ -72,9 +75,9 @@ class App extends Component {
   }
 
   onSearchSubmit(event) {
-    const { searchTerm } = this.state;    
+    const { searchTerm } = this.state;
     this.setState({ searchKey: searchTerm });
-    if(this.needsToSearchTopStories(searchTerm)) {
+    if (this.needsToSearchTopStories(searchTerm)) {
       this.fetchSearchTopStories(searchTerm);
 
     }
@@ -96,10 +99,10 @@ class App extends Component {
   }
 
   render() {
-    const { searchTerm, results, searchKey, error } = this.state;
+    const { searchTerm, results, searchKey, error, isLoading } = this.state;
     const page = (results && results[searchKey] && results[searchKey].page) || 0;
     const list = (results && results[searchKey] && results[searchKey].hits) || [];
-    
+
     return (
       <div className="page">
         <div className="interactions">
@@ -111,19 +114,22 @@ class App extends Component {
             Search
           </Search>
         </div>
-        { error ?
-            <div className="interactions">
-              <p>Something went wrong.</p>
-            </div> :
-            <Table
-              list={list}
-              onDismiss={this.onDismiss}
-            />
+        {error ?
+          <div className="interactions">
+            <p>Something went wrong.</p>
+          </div> :
+          <Table
+            list={list}
+            onDismiss={this.onDismiss}
+          />
         }
         <div className="interactions">
-          <Button onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>
+          <ButtonWithLoading 
+            isLoading={isLoading}
+            onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}
+          >
             More
-          </Button>
+          </ButtonWithLoading>          
         </div>
       </div>
     );
@@ -201,6 +207,16 @@ function Button({ onClick, className = '', children, }) {
   );
 
 }
+
+const Loading = () => <div>Loading ...</div>
+
+function withFeature(Component) {
+  return function ({ isLoading, ...rest }) {
+    return isLoading ? <Loading /> : <Component {...rest} /> ;
+  }
+}
+
+const ButtonWithLoading = withFeature(Button);
 
 export default App;
 
