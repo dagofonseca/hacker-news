@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 import './App.css';
 
 const DEFAULT_QUERY = 'redux';
@@ -55,9 +56,8 @@ class App extends Component {
   }
 
   fetchSearchTopStories(searchTerm, page = 0) {
-    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
-      .then(response => response.json())
-      .then(result => this.setSearchTopStories(result))
+    axios(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)      
+      .then(result => this.setSearchTopStories(result.data))
       .catch(error => this.setState({ error }));
   }
 
@@ -130,20 +130,30 @@ class App extends Component {
   }
 }
 
-function Search({ value, onChange, onSubmit, children }) {
-  return (
-    <form onSubmit={onSubmit}>
-      <input
-        type="text"
-        value={value}
-        onChange={onChange}
-      />
-      <button type="submit">
-        {children}
-      </button>
-    </form>
-  );
+class Search extends Component {
+  componentDidMount() {
+    if (this.input) {
+      this.input.focus();
+    }
+  }
 
+  render() {
+    const { value, onChange, onSubmit, children } = this.props;
+
+    return (
+      <form onSubmit={onSubmit}>
+        <input
+          type="text"
+          value={value}
+          onChange={onChange}
+          ref={el => this.input = el}
+        />
+        <button type="submit">
+          {children}
+        </button>
+      </form>
+    );
+  }
 }
 
 function Table({ list, onDismiss }) {
@@ -193,6 +203,12 @@ function Button({ onClick, className = '', children, }) {
 }
 
 export default App;
+
+export {
+  Button,
+  Search,
+  Table
+};
 
 const largeColumn = {
   width: '40%',
